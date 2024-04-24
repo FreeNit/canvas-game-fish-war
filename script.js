@@ -68,13 +68,13 @@ window.addEventListener("load", function () {
       this.angle = 0;
       this.va = Math.random() * 0.2 - 0.1;
       this.bounced = 0;
-      this.bottomBounceBoundary = Math.random() * 100 + 60;
+      this.bottomBounceBoundary = Math.random() * 80 + 60;
     }
 
     update() {
       this.angle += this.va;
       this.speedY += this.gravity;
-      this.x -= this.speedX;
+      this.x -= this.speedX + this.game.speed;
       this.y += this.speedY;
       if (this.y > this.game.height + this.size || this.x < 0 - this.size)
         this.markedForDeletion = true;
@@ -85,17 +85,21 @@ window.addEventListener("load", function () {
     }
 
     draw(context) {
+      context.save();
+      context.translate(this.x, this.y);
+      context.rotate(this.angle);
       context.drawImage(
         this.image,
         this.frameX * this.spriteSize,
         this.frameY * this.spriteSize,
         this.spriteSize,
         this.spriteSize,
-        this.x,
-        this.y,
+        this.size * -0.5,
+        this.size * -0.5,
         this.size,
         this.size
       );
+      context.restore();
     }
   }
 
@@ -187,7 +191,7 @@ window.addEventListener("load", function () {
     enterPowerUp() {
       this.powerUpTimer = 0;
       this.powerUp = true;
-      this.game.ammo = this.game.maxAmmo;
+      if (this.game.ammo < this.game.maxAmmo) this.game.ammo = this.game.maxAmmo;
     }
   }
 
@@ -235,7 +239,7 @@ window.addEventListener("load", function () {
       super(game);
       this.width = 228;
       this.height = 169;
-      this.y = Math.random() * (this.game.height * 0.9 - this.height);
+      this.y = Math.random() * (this.game.height * 0.95 - this.height);
       this.image = document.getElementById("angler1");
       this.frameY = Math.floor(Math.random() * 3);
       this.lives = 2;
@@ -248,7 +252,7 @@ window.addEventListener("load", function () {
       super(game);
       this.width = 213;
       this.height = 165;
-      this.y = Math.random() * (this.game.height * 0.9 - this.height);
+      this.y = Math.random() * (this.game.height * 0.95 - this.height);
       this.image = document.getElementById("angler2");
       this.frameY = Math.floor(Math.random() * 2);
       this.lives = 3;
@@ -261,12 +265,26 @@ window.addEventListener("load", function () {
       super(game);
       this.width = 99;
       this.height = 95;
-      this.y = Math.random() * (this.game.height * 0.9 - this.height);
+      this.y = Math.random() * (this.game.height * 0.95 - this.height);
       this.image = document.getElementById("lucky");
       this.frameY = Math.floor(Math.random() * 2);
       this.lives = 3;
       this.score = 15;
       this.type = "lucky";
+      this.speedX = Math.random() * -1.2 - 0.2;
+    }
+  }
+  class HiveWhale extends Enemy {
+    constructor(game) {
+      super(game);
+      this.width = 400;
+      this.height = 227;
+      this.y = Math.random() * (this.game.height * 0.95 - this.height);
+      this.image = document.getElementById("hivewhale");
+      this.frameY = 0;
+      this.lives = 15;
+      this.score = this.lives;
+      this.type = "hivewhale";
     }
   }
 
@@ -381,7 +399,7 @@ window.addEventListener("load", function () {
       this.gameTime = 0;
       this.timeLimit = 15000;
       this.speed = 1;
-      this.debug = true;
+      this.debug = false;
     }
     update(deltaTime) {
       if (!this.gameOver) this.gameTime += deltaTime;
@@ -442,8 +460,8 @@ window.addEventListener("load", function () {
 
     draw(context) {
       this.background.draw(context);
-      this.player.draw(context);
       this.ui.draw(context);
+      this.player.draw(context);
       this.particles.forEach((particle) => particle.draw(context));
       this.enemies.forEach((enemy) => {
         enemy.draw(context);
@@ -455,6 +473,7 @@ window.addEventListener("load", function () {
       const randomize = Math.random();
       if (randomize < 0.3) this.enemies.push(new Angler1(this));
       else if (randomize < 0.6) this.enemies.push(new Angler2(this));
+      else if (randomize < 0.8) this.enemies.push(new HiveWhale(this));
       else this.enemies.push(new LuckyFish(this));
     }
 
