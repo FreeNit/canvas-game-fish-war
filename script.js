@@ -446,7 +446,6 @@ window.addEventListener("load", function () {
       this.frameY = 0;
       this.lives = 7;
       this.score = this.lives;
-      this.type = "moon";
       this.speedX = Math.random() * -1 - 1;
     }
   }
